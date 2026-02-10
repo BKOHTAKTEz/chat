@@ -277,35 +277,6 @@
             color: var(--gray);
         }
         
-        .message-media {
-            max-width: 100%;
-            max-height: 300px;
-            border-radius: 8px;
-            margin-top: 8px;
-            cursor: pointer;
-            display: block;
-        }
-        
-        .message-audio {
-            width: 100%;
-            max-width: 300px;
-            margin-top: 8px;
-        }
-        
-        .message-file {
-            display: inline-block;
-            padding: 10px 15px;
-            background: rgba(0,0,0,0.05);
-            border-radius: 8px;
-            margin-top: 8px;
-            color: var(--primary);
-            text-decoration: none;
-        }
-        
-        .message-file:hover {
-            background: rgba(0,0,0,0.1);
-        }
-        
         .message-actions {
             display: flex;
             gap: 10px;
@@ -385,7 +356,7 @@
             border-color: var(--primary);
         }
         
-        .send-btn, .media-btn {
+        .send-btn {
             width: 50px;
             height: 50px;
             border-radius: 50%;
@@ -410,58 +381,6 @@
             background: var(--gray);
             cursor: not-allowed;
             opacity: 0.6;
-        }
-        
-        .media-btn {
-            background: var(--light);
-            color: var(--dark);
-            border: 2px solid var(--border);
-        }
-        
-        .media-btn:hover {
-            background: var(--border);
-        }
-        
-        .file-preview {
-            background: rgba(0,0,0,0.03);
-            padding: 10px 15px;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .file-info {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .remove-file {
-            background: none;
-            border: none;
-            color: var(--danger);
-            cursor: pointer;
-            padding: 5px;
-        }
-        
-        /* Индикатор загрузки файла */
-        .upload-progress {
-            width: 100%;
-            height: 4px;
-            background: var(--border);
-            border-radius: 2px;
-            margin-top: 5px;
-            overflow: hidden;
-            display: none;
-        }
-        
-        .upload-progress-bar {
-            height: 100%;
-            background: var(--primary);
-            width: 0%;
-            transition: width 0.3s;
         }
         
         /* Модальные окна */
@@ -652,7 +571,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-storage-compat.js"></script>
+    
 </head>
 <body>
     <!-- Кнопка переключения темы -->
@@ -745,38 +664,11 @@
                     <button class="cancel-reply" onclick="cancelReply()">×</button>
                 </div>
                 
-                <!-- Превью файла -->
-                <div class="file-preview" id="file-preview" style="display: none;">
-                    <div class="file-info">
-                        <i class="fas fa-file" id="file-icon"></i>
-                        <div>
-                            <div id="file-name" style="font-weight: 600;"></div>
-                            <div id="file-size" style="font-size: 0.8rem; color: var(--gray);"></div>
-                        </div>
-                    </div>
-                    <button class="remove-file" onclick="removeSelectedFile()">
-                        <i class="fas fa-times"></i>
-                    </button>
-                </div>
-                
-                <!-- Прогресс загрузки -->
-                <div class="upload-progress" id="upload-progress">
-                    <div class="upload-progress-bar" id="upload-progress-bar"></div>
-                </div>
-                
                 <!-- Поле ввода -->
                 <div class="input-wrapper">
                     <textarea class="message-input" id="message-input" 
                               placeholder="Введите сообщение..." 
                               rows="1" disabled></textarea>
-                    
-                    <input type="file" id="file-input" 
-                           accept="image/*,video/*,audio/*,.pdf,.doc,.docx,.txt,.zip,.rar" 
-                           style="display: none;">
-                    
-                    <button class="media-btn" onclick="triggerFileInput()">
-                        📎
-                    </button>
                     
                     <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
                         ➤
@@ -811,18 +703,6 @@
         </div>
     </div>
     
-    <!-- Модальное окно просмотра медиа -->
-    <div class="modal" id="media-modal">
-        <div class="modal-content" style="max-width: 90vw; padding: 20px; background: transparent;">
-            <button class="close-modal" onclick="closeMediaModal()" 
-                    style="position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.5); color: white;">
-                ×
-            </button>
-            <img id="modal-image" style="max-width: 100%; max-height: 80vh; border-radius: 8px; display: none;">
-            <video id="modal-video" controls style="max-width: 100%; max-height: 80vh; border-radius: 8px; display: none;"></video>
-        </div>
-    </div>
-    
     <!-- Уведомление -->
     <div class="notification" id="notification">
         <span id="notification-text"></span>
@@ -833,23 +713,22 @@
     
     <script>
         // =============================================
-        // КОНФИГУРАЦИЯ FIREBASE
+        // КОНФИГУРАЦИЯ FIREBASE (без Storage)
         // =============================================
         const firebaseConfig = {
             apiKey: "AIzaSyBuJoMVcS2wLS4PWc8wwsQl3ssf_hY-OyU",
             authDomain: "my-chat-5cc96.firebaseapp.com",
             projectId: "my-chat-5cc96",
-            storageBucket: "my-chat-5cc96.firebasestorage.app",
+            // Убрали storageBucket, так как он не нужен
             messagingSenderId: "13738058338",
             appId: "1:13738058338:web:1668f9586e758629cae73b",
             measurementId: "G-WKRDGF8MWS"
         };
         
-        // Инициализация Firebase
-        firebase.initializeApp(firebaseConfig);
+        // Инициализация Firebase без Storage
+        const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
-        const storage = firebase.storage();
         
         // =============================================
         // ПЕРЕМЕННЫЕ И СОСТОЯНИЕ
@@ -863,11 +742,9 @@
         
         let messages = [];
         let usersOnline = new Map();
-        let selectedFile = null;
         let replyingTo = null;
         let selectedAvatar = 'default';
         let selectedAvatarUrl = 'https://ui-avatars.com/api/?name=User&background=4a76a8&color=fff&size=200';
-        let isUploading = false;
         
         // Предопределенные аватары
         const defaultAvatars = [
@@ -899,7 +776,6 @@
             emptyChat: document.getElementById('empty-chat'),
             messageInput: document.getElementById('message-input'),
             sendBtn: document.getElementById('send-btn'),
-            fileInput: document.getElementById('file-input'),
             onlineText: document.getElementById('online-text'),
             onlineCount: document.getElementById('online-count'),
             
@@ -907,21 +783,10 @@
             replyIndicator: document.getElementById('reply-indicator'),
             replyToText: document.getElementById('reply-to-text'),
             
-            // Файлы
-            filePreview: document.getElementById('file-preview'),
-            fileName: document.getElementById('file-name'),
-            fileSize: document.getElementById('file-size'),
-            fileIcon: document.getElementById('file-icon'),
-            uploadProgress: document.getElementById('upload-progress'),
-            uploadProgressBar: document.getElementById('upload-progress-bar'),
-            
             // Модальные окна
             avatarModal: document.getElementById('avatar-modal'),
             avatarGrid: document.getElementById('avatar-grid'),
             avatarUpload: document.getElementById('avatar-upload'),
-            mediaModal: document.getElementById('media-modal'),
-            modalImage: document.getElementById('modal-image'),
-            modalVideo: document.getElementById('modal-video'),
             
             // Тема
             themeToggle: document.getElementById('theme-toggle'),
@@ -934,34 +799,43 @@
         // =============================================
         // ИНИЦИАЛИЗАЦИЯ
         // =============================================
-        function initApp() {
-            console.log('Инициализация приложения...');
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM загружен, инициализация приложения...');
             
-            setupEventListeners();
-            initAvatars();
-            initTheme();
-            
-            // Аутентификация
-            auth.signInAnonymously()
-                .then(() => {
-                    console.log('Аутентификация успешна');
-                    
-                    auth.onAuthStateChanged(async (user) => {
-                        if (user) {
-                            currentUser = user;
-                            console.log('Пользователь:', user.uid);
-                            await loadUserProfile();
-                            loadMessages();
-                            setupPresence();
-                            enableUI();
-                        }
+            try {
+                setupEventListeners();
+                initAvatars();
+                initTheme();
+                
+                // Аутентификация
+                auth.signInAnonymously()
+                    .then(() => {
+                        console.log('✅ Аутентификация успешна');
+                    })
+                    .catch((error) => {
+                        console.error('❌ Ошибка аутентификации:', error);
+                        showNotification('Ошибка подключения к чату', 'error');
                     });
-                })
-                .catch((error) => {
-                    console.error('Ошибка аутентификации:', error);
-                    showNotification('Ошибка подключения к чату', 'error');
+                    
+                // Отслеживание состояния аутентификации
+                auth.onAuthStateChanged(async (user) => {
+                    if (user) {
+                        console.log('✅ Пользователь вошел:', user.uid);
+                        currentUser = user;
+                        await loadUserProfile();
+                        loadMessages();
+                        setupPresence();
+                        enableUI();
+                    } else {
+                        console.log('❌ Пользователь не аутентифицирован');
+                    }
                 });
-        }
+                
+            } catch (error) {
+                console.error('❌ Ошибка инициализации:', error);
+                showNotification('Ошибка инициализации приложения', 'error');
+            }
+        });
         
         // =============================================
         // ТЕМА
@@ -996,6 +870,7 @@
         // =============================================
         async function loadUserProfile() {
             try {
+                console.log('Загрузка профиля для пользователя:', currentUser.uid);
                 const userDoc = await db.collection('users').doc(currentUser.uid).get();
                 
                 if (userDoc.exists) {
@@ -1005,6 +880,7 @@
                         avatar: data.avatar || 'default',
                         avatarUrl: data.avatarUrl || getAvatarUrl(data.avatar || 'default')
                     };
+                    console.log('Профиль загружен:', userProfile);
                 } else {
                     // Создаем новый профиль
                     userProfile = {
@@ -1013,6 +889,7 @@
                         avatarUrl: getAvatarUrl('default')
                     };
                     
+                    console.log('Создание нового профиля:', userProfile);
                     await db.collection('users').doc(currentUser.uid).set({
                         ...userProfile,
                         uid: currentUser.uid,
@@ -1023,7 +900,7 @@
                 updateProfileUI();
                 
             } catch (error) {
-                console.error('Ошибка загрузки профиля:', error);
+                console.error('❌ Ошибка загрузки профиля:', error);
                 showNotification('Ошибка загрузки профиля', 'error');
             }
         }
@@ -1064,7 +941,7 @@
                 showNotification('Профиль успешно обновлен');
                 
             } catch (error) {
-                console.error('Ошибка сохранения профиля:', error);
+                console.error('❌ Ошибка сохранения профиля:', error);
                 showNotification('Ошибка сохранения профиля', 'error');
             }
         }
@@ -1122,33 +999,12 @@
                     return;
                 }
                 
-                showNotification('Загрузка аватарки...', 'info');
-                
-                const storageRef = storage.ref();
-                const fileRef = storageRef.child(`avatars/${currentUser.uid}/${Date.now()}_${file.name}`);
-                const snapshot = await fileRef.put(file);
-                const downloadUrl = await snapshot.ref.getDownloadURL();
-                
-                selectedAvatar = 'custom';
-                selectedAvatarUrl = downloadUrl;
-                
-                // Добавляем кастомный аватар в список
-                const img = document.createElement('img');
-                img.src = downloadUrl;
-                img.alt = 'Мой аватар';
-                img.className = 'avatar-option selected';
-                img.dataset.id = 'custom';
-                img.dataset.url = downloadUrl;
-                img.addEventListener('click', () => selectAvatar('custom', downloadUrl));
-                
-                elements.avatarGrid.prepend(img);
-                elements.currentAvatarImg.src = downloadUrl;
-                
-                showNotification('Аватарка загружена', 'success');
+                showNotification('Для загрузки аватарки требуется Firebase Storage', 'warning');
+                console.log('Загрузка аватарки невозможна без Firebase Storage');
                 
             } catch (error) {
-                console.error('Ошибка загрузки аватарки:', error);
-                showNotification('Ошибка загрузки аватарки', 'error');
+                console.error('❌ Ошибка загрузки аватарки:', error);
+                showNotification('Загрузка аватарки невозможна', 'error');
             }
         }
         
@@ -1169,13 +1025,15 @@
             userProfile.avatarUrl = selectedAvatarUrl;
             updateProfileUI();
             closeAvatarModal();
-            showNotification('Аватарка сохранена');
+            showNotification('Аватарка сохранена (только локально)');
         }
         
         // =============================================
-        // ЧАТ И СООБЩЕНИЯ
+        // ЧАТ И СООБЩЕНИЯ (без медиафайлов)
         // =============================================
         function loadMessages() {
+            console.log('Загрузка сообщений...');
+            
             db.collection('messages')
                 .orderBy('timestamp', 'desc')
                 .limit(50)
@@ -1194,9 +1052,10 @@
                     messages = newMessages.reverse();
                     renderMessages();
                     updateMessageCounters();
+                    console.log('Сообщений загружено:', messages.length);
                     
                 }, (error) => {
-                    console.error('Ошибка загрузки сообщений:', error);
+                    console.error('❌ Ошибка загрузки сообщений:', error);
                     showNotification('Ошибка загрузки сообщений', 'error');
                 });
         }
@@ -1273,43 +1132,9 @@
                 `;
             }
             
-            // Текст сообщения
+            // Текст сообщения (без медиафайлов)
             if (message.text) {
                 contentHTML += `<div class="message-text">${escapeHtml(message.text)}</div>`;
-            }
-            
-            // Медиафайлы
-            if (message.mediaUrl) {
-                const fileType = message.mediaType || 'unknown';
-                const fileName = escapeHtml(message.fileName || 'Файл');
-                
-                if (fileType.startsWith('image/')) {
-                    contentHTML += `
-                        <img src="${message.mediaUrl}" class="message-media" 
-                             alt="${fileName}" onclick="viewMedia('${message.mediaUrl}', 'image')"
-                             loading="lazy">
-                    `;
-                } else if (fileType.startsWith('video/')) {
-                    contentHTML += `
-                        <video src="${message.mediaUrl}" class="message-media" 
-                               onclick="viewMedia('${message.mediaUrl}', 'video')" 
-                               controls preload="metadata">
-                        </video>
-                    `;
-                } else if (fileType.startsWith('audio/')) {
-                    contentHTML += `
-                        <audio src="${message.mediaUrl}" class="message-audio" 
-                               controls preload="metadata">
-                        </audio>
-                    `;
-                } else {
-                    // Для документов и других файлов
-                    contentHTML += `
-                        <a href="${message.mediaUrl}" target="_blank" class="message-file">
-                            📎 ${fileName}
-                        </a>
-                    `;
-                }
             }
             
             contentHTML += `</div>`; // Закрываем message-bubble
@@ -1339,125 +1164,34 @@
             return messageDiv;
         }
         
+        // =============================================
+        // ОТПРАВКА СООБЩЕНИЙ (без файлов)
+        // =============================================
         async function sendMessage() {
             console.log('sendMessage вызван');
             
-            if (isUploading) {
-                showNotification('Дождитесь загрузки файла', 'warning');
-                return;
-            }
-            
             const text = elements.messageInput.value.trim();
             
-            if (!text && !selectedFile) {
-                showNotification('Введите сообщение или выберите файл', 'error');
+            if (!text) {
+                showNotification('Введите сообщение', 'error');
                 return;
             }
             
             try {
-                let mediaUrl = null;
-                let mediaType = null;
-                let fileName = null;
-                
-                // Загрузка медиафайла, если есть
-                if (selectedFile) {
-                    console.log('Начинаем загрузку файла:', selectedFile.name);
-                    isUploading = true;
-                    elements.uploadProgress.style.display = 'block';
-                    elements.sendBtn.disabled = true;
-                    
-                    showNotification('Загрузка файла...', 'info');
-                    
-                    const storageRef = storage.ref();
-                    const timestamp = Date.now();
-                    
-                    // Создаем безопасное имя файла
-                    const safeFileName = selectedFile.name
-                        .replace(/[^a-zA-Z0-9.-]/g, '_')
-                        .toLowerCase();
-                    
-                    fileName = selectedFile.name;
-                    
-                    // Путь к файлу в хранилище
-                    const filePath = `chat_files/${currentUser.uid}/${timestamp}_${safeFileName}`;
-                    console.log('Путь для загрузки:', filePath);
-                    
-                    const fileRef = storageRef.child(filePath);
-                    
-                    // Загрузка с отслеживанием прогресса
-                    const uploadTask = fileRef.put(selectedFile);
-                    
-                    uploadTask.on('state_changed',
-                        (snapshot) => {
-                            // Прогресс загрузки
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            console.log('Прогресс загрузки:', progress + '%');
-                            elements.uploadProgressBar.style.width = progress + '%';
-                        },
-                        (error) => {
-                            console.error('Ошибка загрузки файла:', error);
-                            console.error('Код ошибки:', error.code);
-                            console.error('Сообщение ошибки:', error.message);
-                            
-                            showNotification('Ошибка загрузки файла: ' + error.message, 'error');
-                            isUploading = false;
-                            elements.uploadProgress.style.display = 'none';
-                            elements.sendBtn.disabled = false;
-                        },
-                        async () => {
-                            try {
-                                // Загрузка завершена
-                                console.log('Файл загружен, получаем URL...');
-                                mediaUrl = await uploadTask.snapshot.ref.getDownloadURL();
-                                mediaType = selectedFile.type;
-                                
-                                console.log('URL файла получен:', mediaUrl);
-                                console.log('Тип файла:', mediaType);
-                                
-                                elements.uploadProgress.style.display = 'none';
-                                elements.uploadProgressBar.style.width = '0%';
-                                isUploading = false;
-                                
-                                showNotification('Файл загружен', 'success');
-                                
-                                // Отправляем сообщение после загрузки файла
-                                await postMessage(text, mediaUrl, mediaType, fileName);
-                            } catch (error) {
-                                console.error('Ошибка получения URL:', error);
-                                showNotification('Ошибка получения ссылки на файл', 'error');
-                                isUploading = false;
-                                elements.uploadProgress.style.display = 'none';
-                                elements.sendBtn.disabled = false;
-                            }
-                        }
-                    );
-                    
-                    return; // Выходим, ждем завершения загрузки
-                } else {
-                    // Если файла нет, сразу отправляем сообщение
-                    console.log('Отправка текстового сообщения');
-                    await postMessage(text, mediaUrl, mediaType, fileName);
-                }
+                console.log('Отправка текстового сообщения');
+                await postMessage(text);
                 
             } catch (error) {
-                console.error('Общая ошибка отправки сообщения:', error);
+                console.error('❌ Ошибка отправки сообщения:', error);
                 showNotification('Ошибка отправки сообщения', 'error');
-                isUploading = false;
-                elements.uploadProgress.style.display = 'none';
-                elements.sendBtn.disabled = false;
             }
         }
         
-        async function postMessage(text, mediaUrl, mediaType, fileName) {
+        async function postMessage(text) {
             try {
-                console.log('Создание сообщения:', {
-                    text: text,
-                    hasMedia: !!mediaUrl,
-                    mediaType: mediaType,
-                    fileName: fileName
-                });
+                console.log('Создание текстового сообщения');
                 
-                // Создаем объект сообщения
+                // Создаем объект сообщения (без медиа)
                 const messageData = {
                     text: text || null,
                     userId: currentUser.uid,
@@ -1466,14 +1200,6 @@
                     avatarUrl: userProfile.avatarUrl,
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
-                
-                // Добавляем медиафайл, если есть
-                if (mediaUrl) {
-                    messageData.mediaUrl = mediaUrl;
-                    messageData.mediaType = mediaType;
-                    messageData.fileName = fileName;
-                    console.log('Добавлены медиа данные в сообщение');
-                }
                 
                 // Добавляем информацию об ответе, если есть
                 if (replyingTo) {
@@ -1485,13 +1211,12 @@
                 
                 // Отправляем сообщение
                 const docRef = await db.collection('messages').add(messageData);
-                console.log('Сообщение отправлено с ID:', docRef.id);
+                console.log('✅ Сообщение отправлено с ID:', docRef.id);
                 
                 // Очищаем поле ввода
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
                 cancelReply();
-                removeSelectedFile();
                 
                 // Прокручиваем вниз
                 scrollToBottom();
@@ -1499,13 +1224,13 @@
                 showNotification('Сообщение отправлено');
                 
             } catch (error) {
-                console.error('Ошибка отправки сообщения в Firestore:', error);
+                console.error('❌ Ошибка отправки сообщения в Firestore:', error);
                 console.error('Код ошибки Firestore:', error.code);
                 console.error('Сообщение ошибки:', error.message);
                 showNotification('Ошибка отправки сообщения: ' + error.message, 'error');
             } finally {
-                elements.sendBtn.disabled = false;
-                console.log('Кнопка отправки разблокирована');
+                elements.sendBtn.disabled = !elements.messageInput.value.trim();
+                console.log('Кнопка отправки обновлена');
             }
         }
         
@@ -1519,7 +1244,7 @@
                     showNotification('Сообщение удалено');
                 })
                 .catch((error) => {
-                    console.error('Ошибка удаления сообщения:', error);
+                    console.error('❌ Ошибка удаления сообщения:', error);
                     showNotification('Ошибка удаления сообщения', 'error');
                 });
         }
@@ -1529,11 +1254,11 @@
             if (message) {
                 replyingTo = {
                     id: message.id,
-                    text: message.text || '(файл)',
+                    text: message.text || '',
                     username: message.username
                 };
                 
-                const replyText = message.text || '(файл)';
+                const replyText = message.text || '';
                 elements.replyToText.textContent = `${message.username}: ${replyText.substring(0, 30)}${replyText.length > 30 ? '...' : ''}`;
                 elements.replyIndicator.style.display = 'flex';
                 elements.messageInput.focus();
@@ -1548,111 +1273,12 @@
         }
         
         // =============================================
-        // ФАЙЛЫ И МЕДИА - РАБОЧАЯ ВЕРСИЯ
-        // =============================================
-        function triggerFileInput() {
-            elements.fileInput.click();
-        }
-        
-        function handleFileSelect(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                console.log('Файл не выбран');
-                return;
-            }
-            
-            console.log('Выбран файл:', {
-                name: file.name,
-                type: file.type,
-                size: file.size,
-                sizeFormatted: formatFileSize(file.size)
-            });
-            
-            // Проверяем размер файла (макс 20MB)
-            const maxSize = 20 * 1024 * 1024; // 20MB
-            if (file.size > maxSize) {
-                showNotification(`Файл слишком большой (максимум ${formatFileSize(maxSize)})`, 'error');
-                elements.fileInput.value = '';
-                console.error('Файл слишком большой:', file.size);
-                return;
-            }
-            
-            selectedFile = file;
-            
-            // Обновляем превью файла
-            elements.fileName.textContent = file.name;
-            elements.fileSize.textContent = formatFileSize(file.size);
-            
-            // Устанавливаем иконку в зависимости от типа файла
-            let icon = 'fa-file';
-            if (file.type.startsWith('image/')) icon = 'fa-file-image';
-            else if (file.type.startsWith('video/')) icon = 'fa-file-video';
-            else if (file.type.startsWith('audio/')) icon = 'fa-file-audio';
-            else if (file.type.includes('pdf')) icon = 'fa-file-pdf';
-            else if (file.type.includes('word') || file.name.match(/\.docx?$/i)) icon = 'fa-file-word';
-            else if (file.type.includes('text') || file.name.match(/\.txt$/i)) icon = 'fa-file-alt';
-            else if (file.type.includes('zip') || file.name.match(/\.(zip|rar)$/i)) icon = 'fa-file-archive';
-            
-            elements.fileIcon.className = `fas ${icon}`;
-            elements.filePreview.style.display = 'flex';
-            
-            // Активируем кнопку отправки
-            elements.sendBtn.disabled = false;
-            
-            console.log('Файл успешно выбран:', file.name);
-            showNotification(`Файл "${file.name}" выбран`, 'info');
-        }
-        
-        function removeSelectedFile() {
-            selectedFile = null;
-            elements.fileInput.value = '';
-            elements.filePreview.style.display = 'none';
-            elements.uploadProgress.style.display = 'none';
-            elements.uploadProgressBar.style.width = '0%';
-            
-            // Проверяем, нужно ли деактивировать кнопку отправки
-            if (!elements.messageInput.value.trim() && !isUploading) {
-                elements.sendBtn.disabled = true;
-            }
-        }
-        
-        function formatFileSize(bytes) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-        }
-        
-        function viewMedia(url, type) {
-            if (type === 'image') {
-                elements.modalImage.src = url;
-                elements.modalImage.style.display = 'block';
-                elements.modalVideo.style.display = 'none';
-            } else if (type === 'video') {
-                elements.modalVideo.src = url;
-                elements.modalVideo.style.display = 'block';
-                elements.modalImage.style.display = 'none';
-            }
-            
-            elements.mediaModal.classList.add('active');
-        }
-        
-        function closeMediaModal() {
-            elements.mediaModal.classList.remove('active');
-            elements.modalImage.src = '';
-            elements.modalVideo.src = '';
-            if (elements.modalVideo) {
-                elements.modalVideo.pause();
-                elements.modalVideo.currentTime = 0;
-            }
-        }
-        
-        // =============================================
         // ОНЛАЙН СТАТУС
         // =============================================
         function setupPresence() {
             if (!currentUser) return;
+            
+            console.log('Настройка онлайн статуса для:', currentUser.uid);
             
             // Ссылка на документ присутствия пользователя
             const userPresenceRef = db.collection('presence').doc(currentUser.uid);
@@ -1665,8 +1291,11 @@
                 username: userProfile.username,
                 online: true,
                 lastSeen: timestamp,
-                updatedAt: timestamp,
-                heartbeat: timestamp
+                updatedAt: timestamp
+            }).then(() => {
+                console.log('✅ Онлайн статус установлен');
+            }).catch(error => {
+                console.error('❌ Ошибка установки онлайн статуса:', error);
             });
             
             // Отслеживаем отключение
@@ -1674,13 +1303,6 @@
                 online: false,
                 lastSeen: firebase.firestore.FieldValue.serverTimestamp()
             });
-            
-            // Функция для проверки "мертвых" соединений
-            setInterval(() => {
-                userPresenceRef.update({
-                    heartbeat: firebase.firestore.FieldValue.serverTimestamp()
-                });
-            }, 30000);
             
             // Следим за онлайн статусом ВСЕХ пользователей
             db.collection('presence').where('online', '==', true)
@@ -1750,9 +1372,10 @@
         
         function enableUI() {
             elements.messageInput.disabled = false;
-            elements.sendBtn.disabled = !elements.messageInput.value.trim() && !selectedFile;
+            elements.sendBtn.disabled = !elements.messageInput.value.trim();
             elements.usernameInput.disabled = false;
-            elements.messageInput.focus();
+            elements.messageInput.placeholder = "Введите сообщение...";
+            console.log('✅ UI активирован');
         }
         
         function escapeHtml(text) {
@@ -1763,7 +1386,7 @@
         }
         
         // =============================================
-        // ОБРАБОТЧИКИ СОБЫТИЙ - РАБОЧАЯ ВЕРСИЯ
+        // ОБРАБОТЧИКИ СОБЫТИЙ
         // =============================================
         function setupEventListeners() {
             console.log('Настройка обработчиков событий...');
@@ -1779,23 +1402,17 @@
                 this.style.height = 'auto';
                 this.style.height = (this.scrollHeight) + 'px';
                 
-                // Активируем кнопку отправки, если есть текст или файл
-                elements.sendBtn.disabled = !(this.value.trim() || selectedFile) || isUploading;
+                // Активируем кнопку отправки, если есть текст
+                elements.sendBtn.disabled = !this.value.trim();
             });
             
             elements.messageInput.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
-                    if ((elements.messageInput.value.trim() || selectedFile) && !isUploading) {
+                    if (elements.messageInput.value.trim()) {
                         sendMessage();
                     }
                 }
-            });
-            
-            // Выбор файла
-            elements.fileInput.addEventListener('change', (e) => {
-                console.log('Файловый input изменен');
-                handleFileSelect(e);
             });
             
             // Загрузка кастомного аватара
@@ -1814,50 +1431,7 @@
                 });
             });
             
-            console.log('Обработчики событий настроены');
-        }
-        
-        // =============================================
-        // ТЕСТОВЫЕ ФУНКЦИИ ДЛЯ ДИАГНОСТИКИ
-        // =============================================
-        function testStorageConnection() {
-            console.log('Тестирование подключения к Firebase Storage...');
-            
-            try {
-                // Пробная загрузка маленького файла
-                const testFile = new Blob(['test content'], { type: 'text/plain' });
-                const testRef = storage.ref().child('test/test_connection.txt');
-                
-                testRef.put(testFile)
-                    .then(async (snapshot) => {
-                        console.log('✅ Storage доступен!');
-                        const url = await snapshot.ref.getDownloadURL();
-                        console.log('Тестовый URL:', url);
-                        
-                        // Удаляем тестовый файл
-                        await snapshot.ref.delete();
-                        console.log('Тестовый файл удален');
-                        
-                        showNotification('Storage работает нормально', 'success');
-                    })
-                    .catch((error) => {
-                        console.error('❌ Ошибка доступа к Storage:', error);
-                        console.error('Код ошибки:', error.code);
-                        console.error('Сообщение ошибки:', error.message);
-                        showNotification('Ошибка Storage: ' + error.message, 'error');
-                    });
-                    
-            } catch (error) {
-                console.error('❌ Ошибка тестирования Storage:', error);
-            }
-        }
-        
-        function checkFirebaseConfig() {
-            console.log('Проверка конфигурации Firebase:');
-            console.log('- Project ID:', firebaseConfig.projectId);
-            console.log('- Storage Bucket:', firebaseConfig.storageBucket);
-            console.log('- App Name:', firebase.app().name);
-            console.log('- Current User:', currentUser ? currentUser.uid : 'нет');
+            console.log('✅ Обработчики событий настроены');
         }
         
         // =============================================
@@ -1866,21 +1440,16 @@
         window.replyToMessage = replyToMessage;
         window.deleteMessage = deleteMessage;
         window.cancelReply = cancelReply;
-        window.viewMedia = viewMedia;
-        window.closeMediaModal = closeMediaModal;
         window.openAvatarModal = openAvatarModal;
         window.closeAvatarModal = closeAvatarModal;
         window.triggerAvatarUpload = triggerAvatarUpload;
-        window.triggerFileInput = triggerFileInput;
-        window.removeSelectedFile = removeSelectedFile;
         window.saveAvatar = saveAvatar;
-        window.testStorageConnection = testStorageConnection;
-        window.checkFirebaseConfig = checkFirebaseConfig;
         
-        // =============================================
-        // ЗАПУСК ПРИЛОЖЕНИЯ
-        // =============================================
-        document.addEventListener('DOMContentLoaded', initApp);
+        // Дебаг информация
+        console.log('=== КОНФИГУРАЦИЯ FIREBASE ===');
+        console.log('Project ID:', firebaseConfig.projectId);
+        console.log('Firebase App:', app.name);
+        console.log('Storage: отключен (не требуется)');
     </script>
 </body>
 </html>
