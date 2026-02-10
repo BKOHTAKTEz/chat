@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Общий чат для реального общения</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
+        }
+        header {
+            text-align: center;
+            padding: 20px 0;
+            margin-bottom: 20px;
+            background-color: #4a76a8;
+            color: white;
+            border-radius: 10px 10px 0 0;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        h1 { font-size: 2.2rem; margin-bottom: 5px; }
+        .subtitle { font-size: 1rem; opacity: 0.9; }
+        .firebase-status {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+        }
+        .status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #ccc;
+        }
+        .status-indicator.connected { background-color: #2ecc71; animation: pulse 2s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+        .app-container {
+            display: flex;
+            flex: 1;
+            gap: 20px;
+            overflow: hidden;
+        }
+        .chat-container {
+            flex: 3;
+            display: flex;
+            flex-direction: column;
+            background-color: white;
+            border-radius: 0 0 10px 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .chat-header {
+            background-color: #5a8ec6;
+            color: white;
+            padding: 15px 20px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .online-count {
+            background-color: rgba(255, 255, 255, 0.2);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+        }
+        .chat-messages {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            background-color: #f9f9f9;
+        }
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            max-width: 80%;
+            animation: fadeIn 0.3s ease-in-out;
+            position: relative;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.my-message {
+            background-color: #e1ffc7;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        .message.other-message {
+            background-color: white;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+        .message-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+            font-size: 0.85rem;
+        }
+        .message-user { font-weight: 600; color: #2c3e50; }
+        .message-time { color: #7f8c8d; }
+        .message-content { word-wrap: break-word; line-height: 1.4; }
+        .message-actions {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 8px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        .message:hover .message-actions { opacity: 1; }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 0.8rem;
+            padding: 2px 8px;
+            border-radius: 3px;
+            transition: background-color 0.2s;
+        }
+        .delete-btn:hover { background-color: rgba(231, 76, 60, 0.1); }
+        .message-input-area {
+            padding: 20px;
+            background-color: white;
+            border-top: 1px solid #eee;
+            display: flex;
+            gap: 10px;
+        }
+        .message-input {
+            flex: 1;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 25px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .message-input:focus { border-color: #5a8ec6; }
+        .send-btn {
+            background-color: #5a8ec6;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.3s;
+        }
+        .send-btn:hover { background-color: #4a76a8; }
+        .send-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .sidebar {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-width: 280px;
+        }
+        .user-info, .settings, .info-box {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        .user-info h3, .settings h3, .info-box h3 {
+            margin-bottom: 15px;
+            color: #4a76a8;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .user-details { display: flex; flex-direction: column; gap: 15px; }
+        .user-name-display {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            padding: 8px 0;
+        }
+        .change-name-btn {
+            background-color: #5a8ec6;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .change-name-btn:hover { background-color: #4a76a8; }
+        .settings-form { display: flex; flex-direction: column; gap: 15px; }
+        .form-group { display: flex; flex-direction: column; gap: 5px; }
+        .form-group label { font-weight: 600; color: #555; }
+        .form-group input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 1rem;
+        }
+        .save-btn {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 12px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        .save-btn:hover { background-color: #27ae60; }
+        .save-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .info-list { list-style-type: none; }
+        .info-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid #f5f5f5;
+            display: flex;
+            justify-content: space-between;
+        }
+        .info-list li:last-child { border-bottom: none; }
+        .info-label { font-weight: 600; color: #555; }
+        .info-value { color: #2c3e50; }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+            animation: modalAppear 0.3s ease-out;
+        }
+        @keyframes modalAppear {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .modal h3 { margin-bottom: 20px; color: #4a76a8; text-align: center; }
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .cancel-btn { background-color: #95a5a6; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .confirm-btn { background-color: #e74c3c; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        .empty-chat { text-align: center; color: #7f8c8d; padding: 40px 20px; font-style: italic; }
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #2ecc71;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 5px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            z-index: 1001;
+            animation: slideIn 0.3s ease-out;
+            display: none;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        .loading { text-align: center; padding: 20px; color: #7f8c8d; }
+        .typing-indicator {
+            padding: 10px 15px;
+            font-style: italic;
+            color: #7f8c8d;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .typing-indicator.active { display: block; }
+        @media (max-width: 768px) {
+            .app-container { flex-direction: column; }
+            .sidebar { min-width: auto; }
+            .message { max-width: 90%; }
+            .firebase-status { position: static; justify-content: center; margin-top: 10px; }
+        }
+    </style>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-firestore-compat.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Общий чат для реального общения</h1>
+            <p class="subtitle">Общайтесь с реальными пользователями в реальном времени. История сохраняется!</p>
+            <div class="firebase-status">
+                <div class="status-indicator" id="status-indicator"></div>
+                <span id="status-text">Подключение...</span>
+            </div>
+        </header>
+        <div class="app-container">
+            <main class="chat-container">
+                <div class="chat-header">
+                    <span>Общий чат</span>
+                    <div class="online-count">Участников онлайн: <span id="online-count">1</span></div>
+                </div>
+                <div class="chat-messages" id="chat-messages">
+                    <div class="loading" id="loading-messages">Загрузка сообщений...</div>
+                    <div class="empty-chat" id="empty-chat" style="display: none;">Чат пуст. Отправьте первое сообщение!</div>
+                </div>
+                <div class="typing-indicator" id="typing-indicator"></div>
+                <div class="message-input-area">
+                    <input type="text" class="message-input" id="message-input" placeholder="Введите ваше сообщение..." disabled>
+                    <button class="send-btn" id="send-btn" disabled>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+            </main>
+            <aside class="sidebar">
+                <div class="user-info">
+                    <h3>Ваш профиль</h3>
+                    <div class="user-details">
+                        <div>
+                            <div class="user-name-display" id="current-username">Загрузка...</div>
+                            <p style="font-size: 0.9rem; color: #7f8c8d; margin-top: 5px;">ID: <span id="user-id">...</span></p>
+                        </div>
+                        <button class="change-name-btn" id="change-name-btn" disabled>Изменить имя</button>
+                    </div>
+                </div>
+                <div class="settings">
+                    <h3>Настройки</h3>
+                    <form class="settings-form" id="settings-form">
+                        <div class="form-group">
+                            <label for="username">Имя пользователя</label>
+                            <input type="text" id="username" name="username" placeholder="Введите имя" disabled>
+                        </div>
+                        <button type="submit" class="save-btn" id="save-btn" disabled>Сохранить изменения</button>
+                    </form>
+                </div>
+                <div class="info-box">
+                    <h3>Информация о чате</h3>
+                    <ul class="info-list">
+                        <li>
+                            <span class="info-label">Всего сообщений:</span>
+                            <span class="info-value" id="total-messages">0</span>
+                        </li>
+                        <li>
+                            <span class="info-label">Ваших сообщений:</span>
+                            <span class="info-value" id="user-messages">0</span>
+                        </li>
+                        <li>
+                            <span class="info-label">Режим работы:</span>
+                            <span class="info-value" id="chat-mode">Реальный чат</span>
+                        </li>
+                        <li>
+                            <span class="info-label">История чата:</span>
+                            <span class="info-value">Сохраняется</span>
+                        </li>
+                    </ul>
+                </div>
+            </aside>
+        </div>
+    </div>
+    <!-- Модальное окно подтверждения удаления -->
+    <div class="modal" id="delete-modal">
+        <div class="modal-content">
+            <h3>Удалить сообщение?</h3>
+            <p>Вы уверены, что хотите удалить это сообщение? Это действие нельзя отменить.</p>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancel-delete">Отмена</button>
+                <button class="confirm-btn" id="confirm-delete">Удалить</button>
+            </div>
+        </div>
+    </div>
+    <!-- Уведомление -->
+    <div class="notification" id="notification">
+        <span id="notification-text">Имя успешно изменено!</span>
+    </div>
+
+    <script>
+        // =============================================
+        // ВАША КОНФИГУРАЦИЯ FIREBASE (ЗАМЕНИТЕ ЭТОТ БЛОК!)
+        // =============================================
+        const firebaseConfig = {
+            apiKey: "AIzaSyBuJoMVcS2wLS4PWc8wwsQl3ssf_hY-OyU",
+            authDomain: "my-chat-5cc96.firebaseapp.com",
+            projectId: "my-chat-5cc96",
+            storageBucket: "my-chat-5cc96.firebasestorage.app",
+            messagingSenderId: "13738058338",
+            appId: "1:13738058338:web:1668f9586e758629cae73b",
+            measurementId: "G-WKRDGF8MWS"
+        };
+        // Инициализация Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const db = firebase.firestore();
+        // =============================================
+        // Элементы DOM
+        const chatMessages = document.getElementById('chat-messages');
+        const messageInput = document.getElementById('message-input');
+        const sendBtn = document.getElementById('send-btn');
+        const emptyChat = document.getElementById('empty-chat');
+        const loadingMessages = document.getElementById('loading-messages');
+        const currentUsername = document.getElementById('current-username');
+        const userIdElement = document.getElementById('user-id');
+        const settingsForm = document.getElementById('settings-form');
+        const usernameInput = document.getElementById('username');
+        const saveBtn = document.getElementById('save-btn');
+        const changeNameBtn = document.getElementById('change-name-btn');
+        const deleteModal = document.getElementById('delete-modal');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const notification = document.getElementById('notification');
+        const notificationText = document.getElementById('notification-text');
+        const totalMessagesElement = document.getElementById('total-messages');
+        const userMessagesElement = document.getElementById('user-messages');
+        const onlineCountElement = document.getElementById('online-count');
+        const statusIndicator = document.getElementById('status-indicator');
+        const statusText = document.getElementById('status-text');
+        const typingIndicator = document.getElementById('typing-indicator');
+        // Переменные состояния
+        let currentUser = null;
+        let messages = [];
+        let messageToDelete = null;
+        let usersOnline = new Set();
+        let typingTimeout = null;
+        let isTyping = false;
+        // Статус подключения
+        firebase.firestore().enablePersistence()
+            .then(() => { updateStatus('connected', 'Подключено к Firebase'); })
+            .catch((err) => { updateStatus('error', 'Офлайн режим'); console.log('Офлайн поддержка отключена: ', err); });
+        function updateStatus(status, text) {
+            statusIndicator.className = 'status-indicator';
+            statusIndicator.classList.add(status);
+            statusText.textContent = text;
+        }
+        // Инициализация приложения
+        function initApp() {
+            // Анонимная аутентификация
+            auth.signInAnonymously()
+                .then(() => {
+                    console.log('Анонимная аутентификация успешна');
+                    updateStatus('connected', 'Подключено');
+                    // Отслеживание состояния аутентификации
+                    auth.onAuthStateChanged((user) => {
+                        if (user) {
+                            currentUser = user;
+                            userIdElement.textContent = user.uid.substring(0, 8) + '...';
+                            // Загрузка имени пользователя
+                            loadUserName();
+                            // Загрузка сообщений
+                            loadMessages();
+                            // Отслеживание онлайн статуса
+                            setupPresence();
+                            // Включение элементов интерфейса
+                            enableUI();
+                        } else {
+                            console.log('Пользователь не аутентифицирован');
+                            updateStatus('error', 'Не авторизован');
+                        }
+                    });
+                })
+                .catch((error) => {
+                    console.error('Ошибка аутентификации: ', error);
+                    updateStatus('error', 'Ошибка подключения');
+                    showNotification('Ошибка подключения к чату', 'error');
+                });
+        }
+        // Загрузка имени пользователя
+        function loadUserName() {
+            db.collection('users').doc(currentUser.uid).get()
+                .then((doc) => {
+                    if (doc.exists) {
+                        const userData = doc.data();
+                        const username = userData.username || `ПОЛЬЗОВАТЕЛЬ ${currentUser.uid.substring(0, 4)}`;
+                        currentUsername.textContent = username;
+                        usernameInput.value = username;
+                    } else {
+                        // Создаем нового пользователя
+                        const defaultUsername = `ПОЛЬЗОВАТЕЛЬ ${currentUser.uid.substring(0, 4)}`;
+                        db.collection('users').doc(currentUser.uid).set({
+                            username: defaultUsername,
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                            lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        currentUsername.textContent = defaultUsername;
+                        usernameInput.value = defaultUsername;
+                    }
+                })
+                .catch((error) => {
+                    console.error('Ошибка загрузки имени: ', error);
+                    const defaultUsername = `ПОЛЬЗОВАТЕЛЬ ${currentUser.uid.substring(0, 4)}`;
+                    currentUsername.textContent = defaultUsername;
+                    usernameInput.value = defaultUsername;
+                });
+        }
+        // Загрузка сообщений в реальном времени
+        function loadMessages() {
+            messages = [];
+            db.collection('messages')
+                .orderBy('timestamp', 'asc')
+                .onSnapshot((snapshot) => {
+                    loadingMessages.style.display = 'none';
+                    snapshot.docChanges().forEach((change) => {
+                        if (change.type === 'added') {
+                            const message = { id: change.doc.id, ...change.doc.data() };
+                            messages.push(message);
+                            displayMessage(message);
+                            updateMessageCounters();
+                        }
+                        if (change.type === 'modified') {
+                            const message = { id: change.doc.id, ...change.doc.data() };
+                            const index = messages.findIndex(m => m.id === message.id);
+                            if (index !== -1) {
+                                messages[index] = message;
+                                updateMessageDisplay(message);
+                            }
+                        }
+                        if (change.type === 'removed') {
+                            const messageId = change.doc.id;
+                            messages = messages.filter(m => m.id !== messageId);
+                            removeMessageDisplay(messageId);
+                            updateMessageCounters();
+                        }
+                    });
+                    if (messages.length === 0) {
+                        emptyChat.style.display = 'block';
+                    } else {
+                        emptyChat.style.display = 'none';
+                    }
+                    scrollToBottom();
+                }, (error) => {
+                    console.error('Ошибка загрузки сообщений: ', error);
+                    loadingMessages.textContent = 'Ошибка загрузки сообщений';
+                    updateStatus('error', 'Ошибка загрузки');
+                });
+        }
+        // Отображение сообщения
+        function displayMessage(message) {
+            const messageElement = createMessageElement(message);
+            chatMessages.appendChild(messageElement);
+        }
+        // Обновление отображения сообщения
+        function updateMessageDisplay(message) {
+            const existingMessage = document.querySelector(`[data-id="${message.id}"]`);
+            if (existingMessage) {
+                const newMessageElement = createMessageElement(message);
+                existingMessage.replaceWith(newMessageElement);
+            }
+        }
+        // Удаление отображения сообщения
+        function removeMessageDisplay(messageId) {
+            const messageElement = document.querySelector(`[data-id="${messageId}"]`);
+            if (messageElement) {
+                messageElement.remove();
+            }
+        }
+        // Создание элемента сообщения
+        function createMessageElement(message) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${message.userId === currentUser.uid ? 'my-message' : 'other-message'}`;
+            messageDiv.dataset.id = message.id;
+            // Форматирование времени
+            let timeText = 'только что';
+            if (message.timestamp) {
+                const timestamp = message.timestamp.toDate ? message.timestamp.toDate() : new Date(message.timestamp);
+                timeText = timestamp.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit', hour12: false });
+            }
+            messageDiv.innerHTML = `
+                <div class="message-header">
+                    <span class="message-user">${message.username}</span>
+                    <span class="message-time">${timeText}</span>
+                </div>
+                <div class="message-content">${message.text}</div>
+                ${message.userId === currentUser.uid ? 
+                    `<div class="message-actions"><button class="delete-btn" data-id="${message.id}">Удалить</button></div>` : ''
+                }
+            `;
+            return messageDiv;
+        }
+        // Отправка сообщения
+        function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text || !currentUser) return;
+            const username = usernameInput.value.trim() || currentUsername.textContent;
+            const newMessage = {
+                text: text,
+                userId: currentUser.uid,
+                username: username,
+                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+            };
+            db.collection('messages').add(newMessage)
+                .then(() => {
+                    messageInput.value = '';
+                    resetTyping();
+                })
+                .catch((error) => {
+                    console.error('Ошибка отправки сообщения: ', error);
+                    showNotification('Ошибка отправки сообщения', 'error');
+                });
+        }
+        // Удаление сообщения
+        function deleteMessage(messageId) {
+            if (!messageId || !currentUser) return;
+            const message = messages.find(m => m.id === messageId);
+            if (message && message.userId === currentUser.uid) {
+                db.collection('messages').doc(messageId).delete()
+                    .then(() => { showNotification('Сообщение удалено'); })
+                    .catch((error) => {
+                        console.error('Ошибка удаления сообщения: ', error);
+                        showNotification('Ошибка удаления сообщения', 'error');
+                    });
+            } else {
+                showNotification('Вы можете удалять только свои сообщения', 'error');
+            }
+            deleteModal.style.display = 'none';
+            messageToDelete = null;
+        }
+        // Обновление имени пользователя
+        function updateUsername(newUsername) {
+            const trimmedUsername = newUsername.trim();
+            if (!trimmedUsername || !currentUser) {
+                showNotification('Имя пользователя не может быть пустым', 'error');
+                return;
+            }
+            db.collection('users').doc(currentUser.uid).update({
+                username: trimmedUsername,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+            })
+            .then(() => {
+                currentUsername.textContent = trimmedUsername;
+                showNotification('Имя пользователя изменено');
+            })
+            .catch((error) => {
+                console.error('Ошибка обновления имени: ', error);
+                showNotification('Ошибка обновления имени', 'error');
+            });
+        }
+        // Обновление счетчиков сообщений
+        function updateMessageCounters() {
+            totalMessagesElement.textContent = messages.length;
+            if (currentUser) {
+                const userMessageCount = messages.filter(msg => msg.userId === currentUser.uid).length;
+                userMessagesElement.textContent = userMessageCount;
+            }
+        }
+        // Настройка отслеживания онлайн статуса
+        function setupPresence() {
+            if (!currentUser) return;
+            // Создаем запись о присутствии пользователя
+            db.collection('presence').doc(currentUser.uid).set({
+                userId: currentUser.uid,
+                username: currentUsername.textContent,
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp(),
+                online: true
+            });
+            // Обновляем статус при отключении
+            window.addEventListener('beforeunload', () => {
+                db.collection('presence').doc(currentUser.uid).update({
+                    online: false,
+                    lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                });
+            });
+            // Отслеживаем онлайн пользователей
+            db.collection('presence').where('online', '==', true).onSnapshot((snapshot) => {
+                usersOnline.clear();
+                snapshot.forEach((doc) => { usersOnline.add(doc.id); });
+                onlineCountElement.textContent = usersOnline.size;
+            });
+            // Обновляем время последней активности каждые 30 секунд
+            setInterval(() => {
+                if (currentUser) {
+                    db.collection('presence').doc(currentUser.uid).update({
+                        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+                    });
+                }
+            }, 30000);
+        }
+        // Индикатор набора текста
+        function updateTypingIndicator() {
+            if (!currentUser) return;
+            if (!isTyping) {
+                isTyping = true;
+                db.collection('presence').doc(currentUser.uid).update({ typing: true });
+            }
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                isTyping = false;
+                db.collection('presence').doc(currentUser.uid).update({ typing: false });
+            }, 2000);
+        }
+        // Сброс индикатора набора текста
+        function resetTyping() {
+            if (!currentUser) return;
+            isTyping = false;
+            clearTimeout(typingTimeout);
+            db.collection('presence').doc(currentUser.uid).update({ typing: false });
+        }
+        // Отслеживание набора текста другими пользователями
+        function setupTypingIndicator() {
+            db.collection('presence').where('typing', '==', true).onSnapshot((snapshot) => {
+                const typingUsers = [];
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    if (data.userId !== currentUser.uid) {
+                        typingUsers.push(data.username || `Пользователь`);
+                    }
+                });
+                if (typingUsers.length > 0) {
+                    let text = '';
+                    if (typingUsers.length === 1) {
+                        text = `${typingUsers[0]} печатает...`;
+                    } else if (typingUsers.length === 2) {
+                        text = `${typingUsers[0]} и ${typingUsers[1]} печатают...`;
+                    } else {
+                        text = `${typingUsers.length} пользователя печатают...`;
+                    }
+                    typingIndicator.textContent = text;
+                    typingIndicator.classList.add('active');
+                } else {
+                    typingIndicator.classList.remove('active');
+                }
+            });
+        }
+        // Прокрутка вниз
+        function scrollToBottom() { chatMessages.scrollTop = chatMessages.scrollHeight; }
+        // Показ уведомления
+        function showNotification(text, type = 'success') {
+            notificationText.textContent = text;
+            if (type === 'error') {
+                notification.style.backgroundColor = '#e74c3c';
+            } else if (type === 'warning') {
+                notification.style.backgroundColor = '#f39c12';
+            } else {
+                notification.style.backgroundColor = '#2ecc71';
+            }
+            notification.style.display = 'flex';
+            setTimeout(() => { notification.style.display = 'none'; }, 3000);
+        }
+        // Включение элементов интерфейса
+        function enableUI() {
+            messageInput.disabled = false;
+            sendBtn.disabled = false;
+            usernameInput.disabled = false;
+            saveBtn.disabled = false;
+            changeNameBtn.disabled = false;
+            messageInput.focus();
+            setupTypingIndicator();
+        }
+        // Обработчики событий
+        sendBtn.addEventListener('click', sendMessage);
+        messageInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') sendMessage(); });
+        messageInput.addEventListener('input', function() {
+            if (this.value.trim().length > 0) updateTypingIndicator(); else resetTyping();
+        });
+        chatMessages.addEventListener('click', function(e) {
+            if (e.target.classList.contains('delete-btn')) {
+                messageToDelete = e.target.dataset.id;
+                deleteModal.style.display = 'flex';
+            }
+        });
+        settingsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateUsername(usernameInput.value);
+        });
+        changeNameBtn.addEventListener('click', function() { usernameInput.focus(); });
+        cancelDeleteBtn.addEventListener('click', function() { deleteModal.style.display = 'none'; messageToDelete = null; });
+        confirmDeleteBtn.addEventListener('click', function() { if (messageToDelete) deleteMessage(messageToDelete); });
+        window.addEventListener('click', function(e) { if (e.target === deleteModal) { deleteModal.style.display = 'none'; messageToDelete = null; } });
+        // Инициализация приложения
+        initApp();
+    </script>
+</body>
+</html>
