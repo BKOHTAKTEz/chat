@@ -87,7 +87,6 @@
             margin-bottom: 15px;
             cursor: pointer;
             background: var(--light);
-            touch-action: manipulation;
         }
         
         .profile-name {
@@ -95,8 +94,6 @@
             font-weight: 600;
             color: var(--dark);
             margin-bottom: 5px;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
         .profile-id {
@@ -106,9 +103,6 @@
             padding: 4px 10px;
             border-radius: 20px;
             display: inline-block;
-            max-width: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
         .sidebar-section {
@@ -122,7 +116,6 @@
             margin-bottom: 15px;
             padding-bottom: 10px;
             border-bottom: 2px solid var(--border);
-            font-size: 1rem;
         }
         
         .form-group {
@@ -134,7 +127,6 @@
             margin-bottom: 5px;
             color: var(--dark);
             font-weight: 500;
-            font-size: 0.9rem;
         }
         
         .form-control {
@@ -144,8 +136,7 @@
             border-radius: 8px;
             background: var(--light);
             color: var(--dark);
-            font-size: 0.95rem;
-            min-height: 44px; /* Минимальная высота для касаний */
+            font-size: 1rem;
         }
         
         .btn {
@@ -158,12 +149,9 @@
             font-weight: 600;
             transition: all 0.3s;
             width: 100%;
-            min-height: 44px;
-            touch-action: manipulation;
         }
         
-        .btn:hover,
-        .btn:active {
+        .btn:hover {
             background: var(--secondary);
             transform: translateY(-1px);
         }
@@ -197,9 +185,6 @@
             justify-content: space-between;
             align-items: center;
             flex-shrink: 0;
-            position: sticky;
-            top: 0;
-            z-index: 10;
         }
         
         .chat-title {
@@ -211,7 +196,6 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 0.9rem;
         }
         
         .online-dot {
@@ -259,13 +243,12 @@
             height: 36px;
             border-radius: 50%;
             object-fit: cover;
-            border: 2px solid var(--light);
+            border: 2px solid white;
             flex-shrink: 0;
         }
         
         .message-content {
             flex: 1;
-            min-width: 0;
         }
         
         .message-bubble {
@@ -274,7 +257,6 @@
             padding: 10px 14px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
             position: relative;
-            word-break: break-word;
         }
         
         .message.my-message .message-bubble {
@@ -292,22 +274,16 @@
             font-weight: 600;
             color: var(--dark);
             font-size: 0.9rem;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
         }
         
         .message-time {
             font-size: 0.75rem;
             color: var(--gray);
-            flex-shrink: 0;
-            margin-left: 8px;
         }
         
         .message-text {
             line-height: 1.5;
             word-break: break-word;
-            font-size: 0.95rem;
         }
         
         .reply-preview {
@@ -318,21 +294,12 @@
             border-left: 3px solid var(--primary);
             font-size: 0.85rem;
             color: var(--gray);
-            overflow: hidden;
-            text-overflow: ellipsis;
         }
         
         .message-actions {
             display: flex;
             gap: 8px;
             margin-top: 6px;
-            opacity: 0;
-            transition: opacity 0.2s;
-        }
-        
-        .message:hover .message-actions,
-        .message:active .message-actions {
-            opacity: 1;
         }
         
         .action-btn {
@@ -344,11 +311,9 @@
             padding: 4px 8px;
             border-radius: 4px;
             transition: all 0.3s;
-            touch-action: manipulation;
         }
         
-        .action-btn:hover,
-        .action-btn:active {
+        .action-btn:hover {
             background: rgba(0,0,0,0.05);
         }
         
@@ -366,9 +331,6 @@
             border-top: 1px solid var(--border);
             background: var(--light);
             flex-shrink: 0;
-            position: sticky;
-            bottom: 0;
-            z-index: 10;
         }
         
         .reply-indicator {
@@ -380,18 +342,6 @@
             justify-content: space-between;
             align-items: center;
             border-left: 3px solid var(--primary);
-            animation: slideIn 0.2s ease;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateY(-10px);
-                opacity: 0;
-            }
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
         }
         
         .cancel-reply {
@@ -401,7 +351,6 @@
             cursor: pointer;
             padding: 4px;
             font-size: 1.2rem;
-            touch-action: manipulation;
         }
         
         .input-wrapper {
@@ -417,7 +366,7 @@
             border-radius: 20px;
             background: var(--light);
             color: var(--dark);
-            font-size: 0.95rem;
+            font-size: 1rem;
             resize: none;
             min-height: 44px;
             max-height: 120px;
@@ -444,11 +393,9 @@
             font-size: 1.1rem;
             transition: all 0.3s;
             flex-shrink: 0;
-            touch-action: manipulation;
         }
         
-        .send-btn:hover:not(:disabled),
-        .send-btn:active:not(:disabled) {
+        .send-btn:hover:not(:disabled) {
             background: var(--secondary);
             transform: scale(1.05);
         }
@@ -509,7 +456,6 @@
             cursor: pointer;
             font-size: 1.5rem;
             padding: 5px;
-            touch-action: manipulation;
         }
         
         .avatar-grid {
@@ -527,11 +473,9 @@
             cursor: pointer;
             border: 3px solid transparent;
             transition: all 0.3s;
-            touch-action: manipulation;
         }
         
-        .avatar-option:hover,
-        .avatar-option:active {
+        .avatar-option:hover {
             transform: scale(1.05);
             border-color: var(--primary);
         }
@@ -555,6 +499,17 @@
             z-index: 1001;
             max-width: 300px;
             animation: slideIn 0.3s ease;
+        }
+        
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
         
         .notification.error {
@@ -587,11 +542,9 @@
             font-size: 1.2rem;
             z-index: 100;
             box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-            touch-action: manipulation;
         }
         
-        .theme-toggle:hover,
-        .theme-toggle:active {
+        .theme-toggle:hover {
             background: var(--secondary);
             transform: scale(1.1);
         }
@@ -610,174 +563,43 @@
             font-style: italic;
         }
         
-        /* Адаптивность для мобильных */
+        /* Адаптивность */
         @media (max-width: 768px) {
             .app-container {
                 flex-direction: column;
                 padding: 5px;
-                gap: 5px;
-                min-height: calc(100vh - env(safe-area-inset-top) - env(safe-area-inset-bottom));
             }
             
             .sidebar {
                 width: 100%;
                 height: auto;
                 max-height: 40vh;
-                padding: 15px;
-                order: 2;
-                border-radius: 10px 10px 0 0;
-                display: grid;
-                grid-template-columns: 1fr 1fr;
-                gap: 15px;
-                align-items: start;
-            }
-            
-            .profile-section {
-                grid-column: 1 / -1;
-                padding-bottom: 10px;
-                margin-bottom: 10px;
-            }
-            
-            .sidebar-section {
-                height: 100%;
                 overflow-y: auto;
-            }
-            
-            .sidebar-section h3 {
-                font-size: 0.9rem;
-                margin-bottom: 10px;
+                order: 2;
             }
             
             .chat-container {
-                height: calc(60vh - 10px);
+                height: 60vh;
                 order: 1;
-                border-radius: 10px;
             }
             
             .message {
                 max-width: 90%;
-                gap: 8px;
-            }
-            
-            .message-avatar {
-                width: 32px;
-                height: 32px;
-            }
-            
-            .message-bubble {
-                padding: 8px 12px;
-            }
-            
-            .message-username {
-                font-size: 0.85rem;
-            }
-            
-            .message-text {
-                font-size: 0.9rem;
             }
             
             .avatar-grid {
                 grid-template-columns: repeat(2, 1fr);
-                gap: 8px;
-            }
-            
-            .modal-content {
-                padding: 15px;
             }
             
             .theme-toggle {
                 bottom: 70px;
                 left: 15px;
-                width: 40px;
-                height: 40px;
             }
             
             .notification {
                 bottom: 70px;
                 right: 15px;
                 max-width: calc(100vw - 30px);
-            }
-        }
-        
-        /* Адаптивность для маленьких экранов */
-        @media (max-width: 480px) {
-            .sidebar {
-                grid-template-columns: 1fr;
-                max-height: 35vh;
-            }
-            
-            .chat-container {
-                height: calc(65vh - 10px);
-            }
-            
-            .profile-avatar {
-                width: 60px;
-                height: 60px;
-            }
-            
-            .profile-name {
-                font-size: 1rem;
-            }
-            
-            .chat-header {
-                padding: 10px 12px;
-            }
-            
-            .chat-title {
-                font-size: 1rem;
-            }
-            
-            .online-indicator {
-                font-size: 0.85rem;
-            }
-            
-            .chat-messages {
-                padding: 10px;
-                gap: 10px;
-            }
-            
-            .input-container {
-                padding: 10px 12px;
-            }
-        }
-        
-        /* Адаптивность для очень маленьких экранов */
-        @media (max-width: 360px) {
-            .message {
-                max-width: 95%;
-            }
-            
-            .profile-avatar {
-                width: 50px;
-                height: 50px;
-            }
-            
-            .message-input {
-                font-size: 0.9rem;
-                padding: 8px 12px;
-            }
-            
-            .send-btn {
-                width: 40px;
-                height: 40px;
-            }
-        }
-        
-        /* Портретная ориентация */
-        @media (orientation: portrait) {
-            .app-container {
-                height: 100vh;
-            }
-        }
-        
-        /* Ландшафтная ориентация */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .sidebar {
-                max-height: 30vh;
-            }
-            
-            .chat-container {
-                height: calc(70vh - 10px);
             }
         }
         
@@ -801,31 +623,9 @@
             border-radius: 3px;
         }
         
-        .sidebar::-webkit-scrollbar-thumb:hover,
-        .chat-messages::-webkit-scrollbar-thumb:hover,
-        .modal-content::-webkit-scrollbar-thumb:hover {
-            background: rgba(0,0,0,0.3);
-        }
-        
         /* Предотвращение масштабирования при фокусе на iOS */
         input, textarea {
             font-size: 16px !important;
-        }
-        
-        /* Улучшения для касаний */
-        button, .btn, .action-btn, .send-btn, .theme-toggle, .cancel-reply, .close-modal {
-            -webkit-touch-callout: none;
-            -webkit-user-select: none;
-            user-select: none;
-        }
-        
-        /* Оптимизация анимаций */
-        @media (prefers-reduced-motion: reduce) {
-            * {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
         }
     </style>
     
@@ -878,12 +678,12 @@
             
             <div class="sidebar-section">
                 <h3>Информация</h3>
-                <div style="font-size: 0.85rem;">
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <div style="font-size: 0.9rem;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span style="color: var(--gray);">Онлайн:</span>
                         <span style="font-weight: 600;" id="online-count">1</span>
                     </div>
-                    <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
                         <span style="color: var(--gray);">Мои сообщения:</span>
                         <span style="font-weight: 600;" id="user-messages-count">0</span>
                     </div>
@@ -930,9 +730,9 @@
                 <div class="input-wrapper">
                     <textarea class="message-input" id="message-input" 
                               placeholder="Введите сообщение..." 
-                              rows="1" disabled></textarea>
+                              rows="1"></textarea>
                     
-                    <button class="send-btn" id="send-btn" onclick="sendMessage()" disabled>
+                    <button class="send-btn" id="send-btn" onclick="sendMessage()">
                         ➤
                     </button>
                 </div>
@@ -972,7 +772,7 @@
     
     <script>
         // =============================================
-        // КОНФИГУРАЦИЯ FIREBASE (без Storage)
+        // КОНФИГУРАЦИЯ FIREBASE
         // =============================================
         const firebaseConfig = {
             apiKey: "AIzaSyBuJoMVcS2wLS4PWc8wwsQl3ssf_hY-OyU",
@@ -983,7 +783,7 @@
             measurementId: "G-WKRDGF8MWS"
         };
         
-        // Инициализация Firebase без Storage
+        // Инициализация Firebase
         const app = firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const db = firebase.firestore();
@@ -1065,7 +865,11 @@
                 initAvatars();
                 initTheme();
                 
-                // Аутентификация
+                // Поле ввода сразу доступно
+                elements.messageInput.disabled = false;
+                elements.sendBtn.disabled = false;
+                
+                // Аутентификация анонимно
                 auth.signInAnonymously()
                     .then(() => {
                         console.log('✅ Аутентификация успешна');
@@ -1083,7 +887,6 @@
                         await loadUserProfile();
                         loadMessages();
                         setupPresence();
-                        enableUI();
                     } else {
                         console.log('❌ Пользователь не аутентифицирован');
                     }
@@ -1109,18 +912,6 @@
             }
             
             elements.themeToggle.addEventListener('click', toggleTheme);
-            
-            // Улучшенные touch-события для мобильных
-            elements.themeToggle.addEventListener('touchstart', function(e) {
-                e.preventDefault();
-                this.style.transform = 'scale(0.95)';
-            }, { passive: false });
-            
-            elements.themeToggle.addEventListener('touchend', function(e) {
-                e.preventDefault();
-                this.style.transform = '';
-                toggleTheme();
-            }, { passive: false });
         }
         
         function toggleTheme() {
@@ -1255,27 +1046,6 @@
         function getAvatarUrl(avatarId) {
             const avatar = defaultAvatars.find(a => a.id === avatarId);
             return avatar ? avatar.url : defaultAvatars[0].url;
-        }
-        
-        async function uploadCustomAvatar(file) {
-            try {
-                if (!file || !file.type.startsWith('image/')) {
-                    showNotification('Выберите изображение', 'error');
-                    return;
-                }
-                
-                if (file.size > 5 * 1024 * 1024) {
-                    showNotification('Изображение должно быть меньше 5MB', 'error');
-                    return;
-                }
-                
-                showNotification('Для загрузки аватарки требуется Firebase Storage', 'warning');
-                console.log('Загрузка аватарки невозможна без Firebase Storage');
-                
-            } catch (error) {
-                console.error('❌ Ошибка загрузки аватарки:', error);
-                showNotification('Загрузка аватарки невозможна', 'error');
-            }
         }
         
         function openAvatarModal() {
@@ -1447,6 +1217,11 @@
                 return;
             }
             
+            if (!currentUser) {
+                showNotification('Вы не авторизованы', 'error');
+                return;
+            }
+            
             try {
                 console.log('Отправка текстового сообщения');
                 await postMessage(text);
@@ -1463,7 +1238,7 @@
                 
                 // Создаем объект сообщения
                 const messageData = {
-                    text: text || null,
+                    text: text,
                     userId: currentUser.uid,
                     username: userProfile.username,
                     avatar: userProfile.avatar,
@@ -1480,13 +1255,16 @@
                 console.log('Отправка сообщения в Firestore:', messageData);
                 
                 // Отправляем сообщение
-                const docRef = await db.collection('messages').add(messageData);
-                console.log('✅ Сообщение отправлено с ID:', docRef.id);
+                await db.collection('messages').add(messageData);
+                console.log('✅ Сообщение отправлено');
                 
                 // Очищаем поле ввода
                 elements.messageInput.value = '';
                 elements.messageInput.style.height = 'auto';
                 cancelReply();
+                
+                // Обновляем кнопку отправки
+                elements.sendBtn.disabled = true;
                 
                 // Прокручиваем вниз
                 scrollToBottom();
@@ -1495,12 +1273,7 @@
                 
             } catch (error) {
                 console.error('❌ Ошибка отправки сообщения в Firestore:', error);
-                console.error('Код ошибки Firestore:', error.code);
-                console.error('Сообщение ошибки:', error.message);
-                showNotification('Ошибка отправки сообщения: ' + error.message, 'error');
-            } finally {
-                elements.sendBtn.disabled = !elements.messageInput.value.trim();
-                console.log('Кнопка отправки обновлена');
+                showNotification('Ошибка отправки сообщения', 'error');
             }
         }
         
@@ -1554,14 +1327,11 @@
             const userPresenceRef = db.collection('presence').doc(currentUser.uid);
             
             // Обновляем статус при подключении
-            const timestamp = firebase.firestore.FieldValue.serverTimestamp();
-            
             userPresenceRef.set({
                 userId: currentUser.uid,
                 username: userProfile.username,
                 online: true,
-                lastSeen: timestamp,
-                updatedAt: timestamp
+                lastSeen: firebase.firestore.FieldValue.serverTimestamp()
             }).then(() => {
                 console.log('✅ Онлайн статус установлен');
             }).catch(error => {
@@ -1640,19 +1410,6 @@
             }, 3000);
         }
         
-        function enableUI() {
-            elements.messageInput.disabled = false;
-            elements.sendBtn.disabled = !elements.messageInput.value.trim();
-            elements.usernameInput.disabled = false;
-            elements.messageInput.placeholder = "Введите сообщение...";
-            console.log('✅ UI активирован');
-            
-            // Фокус на поле ввода на мобильных
-            if (window.innerWidth > 768) {
-                elements.messageInput.focus();
-            }
-        }
-        
         function escapeHtml(text) {
             if (!text) return '';
             const div = document.createElement('div');
@@ -1675,7 +1432,7 @@
             // Поле ввода сообщения
             elements.messageInput.addEventListener('input', function() {
                 this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+                this.style.height = (this.scrollHeight) + 'px';
                 
                 // Активируем кнопку отправки, если есть текст
                 elements.sendBtn.disabled = !this.value.trim();
@@ -1693,7 +1450,8 @@
             // Загрузка кастомного аватара
             elements.avatarUpload.addEventListener('change', (e) => {
                 if (e.target.files[0]) {
-                    uploadCustomAvatar(e.target.files[0]);
+                    // Здесь можно добавить загрузку аватара
+                    showNotification('Загрузка аватара пока недоступна', 'warning');
                 }
             });
             
@@ -1706,19 +1464,10 @@
                 });
             });
             
-            // Предотвращение зума при фокусе на iOS
-            document.addEventListener('touchstart', function(e) {
-                if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') {
-                    e.preventDefault();
-                }
-            }, { passive: false });
-            
-            // Оптимизация для мобильных касаний
-            document.addEventListener('touchmove', function(e) {
-                if (e.target.tagName === 'TEXTAREA') {
-                    e.stopPropagation();
-                }
-            }, { passive: true });
+            // Фокус на поле ввода при загрузке
+            setTimeout(() => {
+                elements.messageInput.focus();
+            }, 1000);
             
             console.log('✅ Обработчики событий настроены');
         }
@@ -1733,12 +1482,11 @@
         window.closeAvatarModal = closeAvatarModal;
         window.triggerAvatarUpload = triggerAvatarUpload;
         window.saveAvatar = saveAvatar;
+        window.sendMessage = sendMessage;
         
-        // Дебаг информация
         console.log('=== КОНФИГУРАЦИЯ FIREBASE ===');
         console.log('Project ID:', firebaseConfig.projectId);
         console.log('Firebase App:', app.name);
-        console.log('Storage: отключен (не требуется)');
     </script>
 </body>
 </html>
